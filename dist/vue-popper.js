@@ -82,6 +82,10 @@
         "default": function _default() {
           return {};
         }
+      },
+      closeOnScroll: {
+        type: Boolean,
+        "default": false
       }
     },
     data: function data() {
@@ -224,6 +228,11 @@
           };
 
           _this.popperJS = new Popper(_this.referenceElm, _this.popper, _this.popperOptions);
+          var scrollElement = _this.popperJS.state.scrollElement;
+
+          if (_this.closeOnScroll && scrollElement) {
+            on(scrollElement, 'scroll', _this.doClose);
+          }
         });
       },
       destroyPopper: function destroyPopper() {
@@ -234,6 +243,12 @@
         off(this.referenceElm, 'blur', this.doClose);
         off(this.referenceElm, 'mouseout', this.onMouseOut);
         off(this.referenceElm, 'mouseover', this.onMouseOver);
+        var scrollElement = this.popperJS.state.scrollElement;
+
+        if (this.closeOnScroll && scrollElement) {
+          off(scrollElement, 'scroll', this.doClose);
+        }
+
         off(document, 'click', this.handleDocumentClick);
         this.showPopper = false;
         this.doDestroy();
@@ -380,7 +395,7 @@
   /* script */
   const __vue_script__ = script;
   // For security concerns, we use only base name in production mode. See https://github.com/vuejs/rollup-plugin-vue/issues/258
-  script.__file = "/Users/user/projects/vue-popper/src/component/popper.js.vue";
+  script.__file = "/Users/gean/Projects/knowbly/@knowbly/vue-popper/src/component/popper.js.vue";
   /* template */
   var __vue_render__ = function() {
     var _vm = this;
