@@ -1,5 +1,5 @@
 {
-  "name": "vue-popperjs",
+  "name": "@knowbly/vue-popperjs",
   "version": "2.0.4",
   "description": "VueJS popover",
   "main": "dist/vue-popper.min.js",
