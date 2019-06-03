@@ -194,11 +194,13 @@
           this.$emit('show', this);
           if (this.popperJS) {
             this.popperJS.enableEventListeners();
+            this.listenParentScrollEvent();
           }
           this.updatePopper();
         } else {
           if (this.popperJS) {
             this.popperJS.disableEventListeners();
+            this.stopListenParentScrollEvent();
           }
           this.$emit('hide', this);
         }
@@ -316,10 +318,7 @@
           };
 
           this.popperJS = new Popper(this.referenceElm, this.popper, this.popperOptions);
-          const scrollElement = this.popperJS.state.scrollElement;
-          if (this.closeOnScroll && scrollElement) {
-            on(scrollElement, 'scroll', this.doClose);
-          }
+
         });
       },
 
@@ -331,10 +330,7 @@
         off(this.referenceElm, 'blur', this.doClose);
         off(this.referenceElm, 'mouseout', this.onMouseOut);
         off(this.referenceElm, 'mouseover', this.onMouseOver);
-        const scrollElement = this.popperJS.state.scrollElement;
-        if (this.closeOnScroll && scrollElement) {
-          off(scrollElement, 'scroll', this.doClose);
-        }
+        this.stopListenParentScrollEvent();
         off(document, 'click', this.handleDocumentClick);
 
         this.showPopper = false;
@@ -396,7 +392,21 @@
         }
 
         return false;
-      }
+      },
+
+      listenParentScrollEvent() {
+        const scrollElement = this.popperJS.state.scrollElement;
+        if (this.closeOnScroll && scrollElement) {
+          on(scrollElement, 'scroll', this.doClose);
+        }
+      },
+
+      stopListenParentScrollEvent() {
+        const scrollElement = this.popperJS.state && this.popperJS.state.scrollElement;
+        if (this.closeOnScroll && scrollElement) {
+          off(scrollElement, 'scroll', this.doClose);
+        }
+      },
     },
 
     destroyed() {
