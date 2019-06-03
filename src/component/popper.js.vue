@@ -402,7 +402,7 @@
       },
 
       stopListenParentScrollEvent() {
-        const scrollElement = this.popperJS.state && this.popperJS.state.scrollElement;
+        const scrollElement = this.popperJS && this.popperJS.state && this.popperJS.state.scrollElement;
         if (this.closeOnScroll && scrollElement) {
           off(scrollElement, 'scroll', this.doClose);
         }
