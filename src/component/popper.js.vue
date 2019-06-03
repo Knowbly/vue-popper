@@ -166,6 +166,10 @@
         default() {
           return {};
         }
+      },
+      closeOnScroll: {
+        type: Boolean,
+        default: false,
       }
     },
 
@@ -312,6 +316,10 @@
           };
 
           this.popperJS = new Popper(this.referenceElm, this.popper, this.popperOptions);
+          const scrollElement = this.popperJS.state.scrollElement;
+          if (this.closeOnScroll && scrollElement) {
+            on(scrollElement, 'scroll', this.doClose);
+          }
         });
       },
 
@@ -323,6 +331,10 @@
         off(this.referenceElm, 'blur', this.doClose);
         off(this.referenceElm, 'mouseout', this.onMouseOut);
         off(this.referenceElm, 'mouseover', this.onMouseOver);
+        const scrollElement = this.popperJS.state.scrollElement;
+        if (this.closeOnScroll && scrollElement) {
+          off(scrollElement, 'scroll', this.doClose);
+        }
         off(document, 'click', this.handleDocumentClick);
 
         this.showPopper = false;
