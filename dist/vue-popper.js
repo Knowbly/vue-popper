@@ -109,7 +109,6 @@
 
           if (this.popperJS) {
             this.popperJS.enableEventListeners();
-            this.listenParentScrollEvent();
           }
 
           this.updatePopper();
@@ -230,6 +229,8 @@
           };
 
           _this.popperJS = new Popper(_this.referenceElm, _this.popper, _this.popperOptions);
+
+          _this.listenParentScrollEvent();
         });
       },
       destroyPopper: function destroyPopper() {
