@@ -93,6 +93,7 @@
 
 <script>
   import Popper from 'popper.js';
+  import { throttle } from "lodash-es";
 
   function on(element, event, handler) {
     if (element && event && handler) {
@@ -175,6 +176,7 @@
 
     data() {
       return {
+        lastParentScrollY: null,
         referenceElm: null,
         popperJS: null,
         showPopper: false,
@@ -198,8 +200,8 @@
           this.updatePopper();
         } else {
           if (this.popperJS) {
-            this.popperJS.disableEventListeners();
             this.stopListenParentScrollEvent();
+            this.popperJS.disableEventListeners();
           }
           this.$emit('hide', this);
         }
@@ -223,6 +225,7 @@
       this.appendedArrow = false;
       this.appendedToBody = false;
       this.popperOptions = Object.assign(this.popperOptions, this.options);
+      this.handleParentScrollThrottled = throttle(this.handleParentScroll, 20);
     },
 
     mounted() {
@@ -396,15 +399,24 @@
       listenParentScrollEvent() {
         const scrollElement = this.popperJS.state.scrollElement;
         if (this.closeOnScroll && scrollElement) {
-          on(scrollElement, 'scroll', this.doClose);
+          on(scrollElement, 'scroll', this.handleParentScrollThrottled);
         }
       },
 
       stopListenParentScrollEvent() {
         const scrollElement = this.popperJS && this.popperJS.state && this.popperJS.state.scrollElement;
         if (this.closeOnScroll && scrollElement) {
-          off(scrollElement, 'scroll', this.doClose);
+          off(scrollElement, 'scroll', this.handleParentScrollThrottled);
+          this.lastParentScrollY = null;
         }
+      },
+
+      handleParentScroll(event) {
+        const parentScrollY = event.currentTarget.scrollTop;
+        if (this.lastParentScrollY !== null && parentScrollY !== this.lastParentScrollY) {
+          this.doClose();
+        }
+        this.lastParentScrollY = parentScrollY;
       },
     },
 
