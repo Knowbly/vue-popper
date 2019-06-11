@@ -412,6 +412,10 @@
       },
 
       handleParentScroll(event) {
+        if (!event) {
+          console.warn("event is required");
+          return;
+        }
         const parentScrollY = event.currentTarget.scrollTop;
         if (this.lastParentScrollY !== null && parentScrollY !== this.lastParentScrollY) {
           this.doClose();

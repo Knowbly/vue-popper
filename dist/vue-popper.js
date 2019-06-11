@@ -314,6 +314,11 @@
         }
       },
       handleParentScroll: function handleParentScroll(event) {
+        if (!event) {
+          console.warn("event is required");
+          return;
+        }
+
         var parentScrollY = event.currentTarget.scrollTop;
 
         if (this.lastParentScrollY !== null && parentScrollY !== this.lastParentScrollY) {
