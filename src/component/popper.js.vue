@@ -412,8 +412,9 @@
       },
 
       handleParentScroll(event) {
-        if (!event) {
-          console.warn("event is required");
+        if (event.currentTarget === null) {
+          // this.popperJS.state.scrollElement is null
+          // popper has been destroyed
           return;
         }
         const parentScrollY = event.currentTarget.scrollTop;
