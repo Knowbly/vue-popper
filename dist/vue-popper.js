@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('popper.js')) :
-  typeof define === 'function' && define.amd ? define(['popper.js'], factory) :
-  (global = global || self, global.VuePopper = factory(global.Popper));
-}(this, function (Popper) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('popper.js'), require('lodash-es')) :
+  typeof define === 'function' && define.amd ? define(['popper.js', 'lodash-es'], factory) :
+  (global = global || self, global.VuePopper = factory(global.Popper, global.lodashEs));
+}(this, function (Popper, lodashEs) { 'use strict';
 
   Popper = Popper && Popper.hasOwnProperty('default') ? Popper['default'] : Popper;
 
@@ -90,6 +90,7 @@
     },
     data: function data() {
       return {
+        lastParentScrollY: null,
         referenceElm: null,
         popperJS: null,
         showPopper: false,
@@ -114,8 +115,8 @@
           this.updatePopper();
         } else {
           if (this.popperJS) {
-            this.popperJS.disableEventListeners();
             this.stopListenParentScrollEvent();
+            this.popperJS.disableEventListeners();
           }
 
           this.$emit('hide', this);
@@ -137,6 +138,7 @@
       this.appendedArrow = false;
       this.appendedToBody = false;
       this.popperOptions = Object.assign(this.popperOptions, this.options);
+      this.handleParentScrollThrottled = lodashEs.throttle(this.handleParentScroll, 20);
     },
     mounted: function mounted() {
       this.referenceElm = this.reference || this.$slots.reference[0].elm;
@@ -300,15 +302,25 @@
         var scrollElement = this.popperJS.state.scrollElement;
 
         if (this.closeOnScroll && scrollElement) {
-          on(scrollElement, 'scroll', this.doClose);
+          on(scrollElement, 'scroll', this.handleParentScrollThrottled);
         }
       },
       stopListenParentScrollEvent: function stopListenParentScrollEvent() {
         var scrollElement = this.popperJS && this.popperJS.state && this.popperJS.state.scrollElement;
 
         if (this.closeOnScroll && scrollElement) {
-          off(scrollElement, 'scroll', this.doClose);
+          off(scrollElement, 'scroll', this.handleParentScrollThrottled);
+          this.lastParentScrollY = null;
         }
+      },
+      handleParentScroll: function handleParentScroll(event) {
+        var parentScrollY = event.currentTarget.scrollTop;
+
+        if (this.lastParentScrollY !== null && parentScrollY !== this.lastParentScrollY) {
+          this.doClose();
+        }
+
+        this.lastParentScrollY = parentScrollY;
       }
     },
     destroyed: function destroyed() {
